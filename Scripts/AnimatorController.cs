@@ -4,7 +4,6 @@ public class AnimatorController : MonoBehaviour
 {
     public static Animator animator;
 
-    PlayerController controller;
     Rigidbody2D rb;
     SpriteRenderer spriteRen;
 
@@ -16,7 +15,6 @@ public class AnimatorController : MonoBehaviour
     private void Awake()
     {
         animator = GetComponentInChildren<Animator>();
-        controller = GetComponentInChildren<PlayerController>();
         rb = GetComponentInChildren<Rigidbody2D>();
         spriteRen = GetComponentInChildren<SpriteRenderer>();
     }
@@ -30,9 +28,9 @@ public class AnimatorController : MonoBehaviour
         if (attacking) return;
 
 
-        if (controller.below) //Grounded
+        if (PlayerController.below) //Grounded
         {
-            if (controller.horizontal != 0)
+            if (PlayerController.horizontal != 0)
                 PlayAnimation("Movement");
             else
                 PlayAnimation("Idle");
