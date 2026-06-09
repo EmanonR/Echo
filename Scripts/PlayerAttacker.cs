@@ -5,11 +5,9 @@ using System.Collections.Generic;
 
 public class PlayerAttacker : MonoBehaviour
 {
-    public List<Combo> combos;
+    public List<Attack> attacks;
     float lastAttackedTime;
-    float lastComboEnd;
-    int comboCounter;
-    int currentCombo;
+    int attackInd;
 
     public KeyCode attackKey = KeyCode.J;
 
@@ -27,9 +25,9 @@ public class PlayerAttacker : MonoBehaviour
     {
         if (Input.GetKeyDown(attackKey))
         {
-            currentCombo = ValidateAndFindAttack();
+            attackInd = ValidateAndFindAttack();
 
-            if (currentCombo != -1)
+            if (attackInd != -1)
                 Attack();
         }
 
@@ -39,10 +37,10 @@ public class PlayerAttacker : MonoBehaviour
     int ValidateAndFindAttack()
     {
         //cycle all combos
-        for (int i = 0; i < combos.Count; i++)
+        for (int i = 0; i < attacks.Count; i++)
         {
             //Check for matching requirements
-            bool validation = CheckRequirements(combos[i].activationReq);
+            bool validation = CheckActivationReqs(attacks[i].activationReq);
 
             if (validation)
                 return i;
@@ -51,21 +49,21 @@ public class PlayerAttacker : MonoBehaviour
         return -1;
     }
 
-    bool CheckRequirement(Requirement req)
+    bool CheckActivationReq(ActivationReq req)
     {
         switch (req)
         {
-            case Requirement.Grounded:
+            case ActivationReq.Grounded:
                 if (PlayerController.below)
                     return true;
                 break;
 
-            case Requirement.AirBorn:
+            case ActivationReq.AirBorn:
                 if (!PlayerController.below)
                     return true;
                 break;
 
-            case Requirement.Moving:
+            case ActivationReq.Moving:
                 if (PlayerController.horizontal != 0)
                     return true;
                 break;
@@ -74,90 +72,138 @@ public class PlayerAttacker : MonoBehaviour
         return false;
     }
 
-    bool CheckRequirements(List<Requirement> req)
+    bool CheckActivationReqs(List<ActivationReq> req)
     {
-        bool val = true;
+        bool eval = true;
 
         for (int i = 0; i < req.Count; i++)
         {
-            if (CheckRequirement(req[i]) == false)
+            if (CheckActivationReq(req[i]) == false)
             {
-                val = false;
+                eval = false;
                 break;
             }
         }
 
-        return val;
+        return eval;
+    }
+
+    bool CheckCancelCon(CancelationCon cancelCon)
+    {
+        switch (cancelCon)
+        {
+            case CancelationCon.Grounded:
+                if (PlayerController.below)
+                    return true;
+                break;
+
+            case CancelationCon.HitWall:
+                if (AnimatorController.lookingRight)
+                {
+                    if (PlayerController.right)
+                        return true;
+                }
+                else
+                {
+                    if (PlayerController.left)
+                        return true;
+                }
+                break;
+        }
+
+        return false;
+    }
+
+    bool CheckCancelCons(List<CancelationCon> cancelCons)
+    {
+        bool eval = true;
+
+        for (int i = 0; i < cancelCons.Count; i++)
+        {
+            if (CheckCancelCon(cancelCons[i]) == false)
+            {
+                eval = false;
+                break;
+            }
+        }
+
+        return eval;
     }
 
     void Attack()
     {
-        if (Time.time - lastComboEnd > .1f && comboCounter < combos[currentCombo].attacks.Count)
+        if (Time.time - lastAttackedTime > .1f)
         {
             CancelInvoke(nameof(EndCombo));
 
-            if (Time.time - lastAttackedTime >= .1f)
+            //Variables
+            AttackSO currentAttack = attacks[attackInd].attack;
+
+            attacking = true;
+            animator.runtimeAnimatorController = currentAttack.animatorOV;
+            hitBox.damage = currentAttack.damage;
+
+            //Effects
+            foreach (Effects effect in currentAttack.effect)
             {
-                //Variables
-                AttackSO currentAttack = combos[currentCombo].attacks[comboCounter];
-
-                attacking = true;
-                animator.runtimeAnimatorController = currentAttack.animatorOV;
-                hitBox.damage = currentAttack.damage;
-                comboCounter++;
-                lastAttackedTime = Time.time;
-                if (comboCounter > combos[currentCombo].attacks.Count)
-                    comboCounter = 0;
-
-                //Effects
-                foreach (Effects effect in currentAttack.effect)
+                switch (effect)
                 {
-                    switch (effect)
-                    {
-                        case Effects.VelocityOverride:
-                            PlayerController.Instance.OverrideVelocity(currentAttack.OverrideVel,
-                                                                        AnimatorController.lookingRight);
-                            break;
-                        case Effects.CantMove:
-                            PlayerController.moveOverride = true;
-                            break;
-                    }
+                    case Effects.VelocityOverride:
+                        PlayerController.Instance.OverrideVelocity(currentAttack.OverrideVel,
+                                                                    AnimatorController.lookingRight);
+                        break;
+                    case Effects.CantMove:
+                        PlayerController.moveOverride = true;
+                        break;
                 }
-
-                //Animation
-                AnimatorController.PlayAnimation("Attack");
-
             }
+
+            //Animation
+            AnimatorController.PlayAnimation("Attack");
         }
     }
 
     void ExitAttack()
     {
-        if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime > .99f && animator.GetCurrentAnimatorStateInfo(0).IsTag("Attack"))
-        {
+        if (!animator.GetCurrentAnimatorStateInfo(0).IsTag("Attack")) return;
+
+        if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime > .99f && attacks[attackInd].CancelOnAnimEnd)
             Invoke(nameof(EndCombo), 0);
-        }
+
+        if (attacks[attackInd].cancelationCon.Count == 0)
+            return;
+        else if (CheckCancelCons(attacks[attackInd].cancelationCon))
+            Invoke(nameof(EndCombo), 0);
     }
 
     void EndCombo()
     {
-        comboCounter = 0;
-        lastComboEnd = Time.time;
+        lastAttackedTime = Time.time;
         attacking = false;
         PlayerController.moveOverride = false;
     }
 }
 
 [System.Serializable]
-public class Combo
+public class Attack
 {
-    public List<Requirement> activationReq;
-    public List<AttackSO> attacks;
+    public string name;
+    public List<ActivationReq> activationReq;
+    public AttackSO attack;
+
+    public List<CancelationCon> cancelationCon;
+    public bool CancelOnAnimEnd = true;
 }
 
-public enum Requirement
+public enum ActivationReq
 {
     Grounded,
     AirBorn,
     Moving
+}
+
+public enum CancelationCon
+{
+    Grounded,
+    HitWall
 }
