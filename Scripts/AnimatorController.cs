@@ -10,6 +10,7 @@ public class AnimatorController : MonoBehaviour
     public static string currentAnimName;
     string prevAnimName;
 
+    public static bool lookingRight;
 
     private void Awake()
     {
@@ -21,7 +22,10 @@ public class AnimatorController : MonoBehaviour
     private void Update()
     {
         if (rb.linearVelocityX != 0)
+        {
+            lookingRight = rb.linearVelocityX > 0;
             spriteRen.flipX = rb.linearVelocityX < 0;
+        }
 
 
         if (PlayerAttacker.attacking) return;
