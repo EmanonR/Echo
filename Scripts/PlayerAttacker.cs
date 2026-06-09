@@ -136,7 +136,8 @@ public class PlayerAttacker : MonoBehaviour
             AttackSO currentAttack = attacks[attackInd].attack;
 
             //HitBox
-            hitBox.hitBox.offset = currentAttack.offset;
+            Vector2 hbOffset = new(AnimatorController.lookingRight ? currentAttack.offset.x : -currentAttack.offset.x, currentAttack.offset.y);
+            hitBox.hitBox.offset = hbOffset;
             hitBox.hitBox.size = currentAttack.size;
             hitBox.damage = currentAttack.damage;
             hitBox.EnableHitBox();
