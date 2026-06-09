@@ -10,8 +10,8 @@ public class AttackSO : ScriptableObject
     public int damage = 10;
 
     [Header("HitBox")]
-    public Vector2 position = new();
-    public Vector2 scale = new(1, 1);
+    public Vector2 offset = new();
+    public Vector2 size = new(1, 1);
 }
 
 [System.Serializable]
