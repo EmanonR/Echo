@@ -11,15 +11,9 @@ public class PlayerAttacker : MonoBehaviour
 
     public KeyCode attackKey = KeyCode.J;
 
-    Animator animator;
     [SerializeField] PlayerHitBox hitBox;
 
     public static bool attacking = false;
-
-    private void Start()
-    {
-        animator = GetComponentInChildren<Animator>();
-    }
 
     private void Update()
     {
@@ -137,11 +131,15 @@ public class PlayerAttacker : MonoBehaviour
             CancelInvoke(nameof(EndCombo));
 
             //Variables
+            attacking = true;
+
             AttackSO currentAttack = attacks[attackInd].attack;
 
-            attacking = true;
-            animator.runtimeAnimatorController = currentAttack.animatorOV;
+            //HitBox
+            hitBox.hitBox.offset = currentAttack.offset;
+            hitBox.hitBox.size = currentAttack.size;
             hitBox.damage = currentAttack.damage;
+            hitBox.EnableHitBox();
 
             //Effects
             foreach (Effects effect in currentAttack.effect)
@@ -159,15 +157,16 @@ public class PlayerAttacker : MonoBehaviour
             }
 
             //Animation
+            AnimatorController.animator.runtimeAnimatorController = currentAttack.animatorOV;
             AnimatorController.PlayAnimation("Attack");
         }
     }
 
     void ExitAttack()
     {
-        if (!animator.GetCurrentAnimatorStateInfo(0).IsTag("Attack")) return;
+        if (!AnimatorController.animator.GetCurrentAnimatorStateInfo(0).IsTag("Attack")) return;
 
-        if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime > .99f && attacks[attackInd].CancelOnAnimEnd)
+        if (AnimatorController.animator.GetCurrentAnimatorStateInfo(0).normalizedTime > .99f && attacks[attackInd].CancelOnAnimEnd)
             Invoke(nameof(EndCombo), 0);
 
         if (attacks[attackInd].cancelationCon.Count == 0)
@@ -178,6 +177,7 @@ public class PlayerAttacker : MonoBehaviour
 
     void EndCombo()
     {
+        hitBox.DissableHitBox();
         lastAttackedTime = Time.time;
         attacking = false;
         PlayerController.moveOverride = false;
