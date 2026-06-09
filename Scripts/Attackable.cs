@@ -11,7 +11,7 @@ public class Attackable : MonoBehaviour
     public float numberSpawnHeight;
 
     public List<GameObject> numbersPool;
-    int nbrInd;
+    int nbrInd = 0;
 
     private void Awake()
     {
@@ -27,11 +27,14 @@ public class Attackable : MonoBehaviour
     public virtual void TakeDamage(int damage)
     {
         GameObject nbr = numbersPool[nbrInd];
+        nbr.SetActive(true);
         nbr.transform.position = new Vector3(transform.position.x, transform.position.y + numberSpawnHeight);
         nbr.GetComponentInChildren<TMP_Text>().text = damage.ToString();
         nbr.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(Random.Range(-5, 5), Random.Range(5, 10));
         StartCoroutine(DespawnNumber(nbr));
         nbrInd++;
+        if (nbrInd >= numbersPool.Count)
+            nbrInd = 0;
 
         if (imortal) return;
 
