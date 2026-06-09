@@ -15,7 +15,7 @@ public class PlayerAttacker : MonoBehaviour
 
     public static bool attacking = false;
 
-    public static event Action<Vector2, AnimationClip, Attack> onAttack;
+    public static event Action<Vector2, AnimationClip, Attack, bool> onAttack;
 
     PlayerCollisionHandler colhandler;
 
@@ -171,7 +171,7 @@ public class PlayerAttacker : MonoBehaviour
             AnimatorController.PlayAnimation("Attack");
 
             //onAttack?.Invoke(transform.position, AnimatorController.animator.GetCurrentAnimatorClipInfo(0)[0].clip, currentAttack);
-            onAttack?.Invoke(transform.position, currentAttack.animatorOV["Attack"], attacks[attackInd]);
+            onAttack?.Invoke(transform.position, currentAttack.animatorOV["Attack"], attacks[attackInd], AnimatorController.lookingRight);
         }
     }
 
