@@ -2,15 +2,20 @@ using UnityEngine;
 
 public class EchoSpawnHandler : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public GameObject echoPrefab;
+
+    private void Awake()
     {
-        
+        PlayerAttacker.onAttack += SpawnEcho;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void SpawnEcho(Vector2 position, AnimationClip anim, AttackSO attack)
     {
-        
+        GameObject echo = Instantiate(echoPrefab, position, Quaternion.identity);
+        EchoHandler handler = echo.GetComponent<EchoHandler>();
+
+        handler.velocity = attack.OverrideVel;
+        handler.damage = attack.damage / 2;
+        handler.anim = anim;
     }
 }
