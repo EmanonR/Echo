@@ -16,6 +16,8 @@ public class PlayerAttacker : MonoBehaviour
     Animator animator;
     [SerializeField] PlayerHitBox hitBox;
 
+    public static bool attacking = false;
+
     private void Start()
     {
         animator = GetComponentInChildren<Animator>();
@@ -96,16 +98,35 @@ public class PlayerAttacker : MonoBehaviour
 
             if (Time.time - lastAttackedTime >= .1f)
             {
-                AnimatorController.attacking = true;
-                print("ATTACK!");
-                animator.runtimeAnimatorController = combos[currentCombo].attacks[comboCounter].animatorOV;
-                AnimatorController.PlayAnimation("Attack");
-                hitBox.damage = combos[currentCombo].attacks[comboCounter].damage;
+                //Variables
+                AttackSO currentAttack = combos[currentCombo].attacks[comboCounter];
+
+                attacking = true;
+                animator.runtimeAnimatorController = currentAttack.animatorOV;
+                hitBox.damage = currentAttack.damage;
                 comboCounter++;
                 lastAttackedTime = Time.time;
-
                 if (comboCounter > combos[currentCombo].attacks.Count)
                     comboCounter = 0;
+
+                //Effects
+                foreach (Effects effect in currentAttack.effect)
+                {
+                    switch (effect)
+                    {
+                        case Effects.VelocityOverride:
+                            PlayerController.Instance.OverrideVelocity(currentAttack.OverrideVel,
+                                                                        AnimatorController.lookingRight);
+                            break;
+                        case Effects.CantMove:
+                            PlayerController.moveOverride = true;
+                            break;
+                    }
+                }
+
+                //Animation
+                AnimatorController.PlayAnimation("Attack");
+
             }
         }
     }
@@ -122,7 +143,8 @@ public class PlayerAttacker : MonoBehaviour
     {
         comboCounter = 0;
         lastComboEnd = Time.time;
-        AnimatorController.attacking = false;
+        attacking = false;
+        PlayerController.moveOverride = false;
     }
 }
 
