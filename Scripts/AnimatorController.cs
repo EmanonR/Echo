@@ -10,7 +10,6 @@ public class AnimatorController : MonoBehaviour
     public static string currentAnimName;
     string prevAnimName;
 
-    public static bool attacking = false;
 
     private void Awake()
     {
@@ -25,7 +24,7 @@ public class AnimatorController : MonoBehaviour
             spriteRen.flipX = rb.linearVelocityX < 0;
 
 
-        if (attacking) return;
+        if (PlayerAttacker.attacking) return;
 
 
         if (PlayerController.below) //Grounded
