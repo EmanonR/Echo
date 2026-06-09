@@ -9,7 +9,7 @@ public class EchoSpawnHandler : MonoBehaviour
         PlayerAttacker.onAttack += SpawnEcho;
     }
 
-    public void SpawnEcho(Vector2 position, AnimationClip anim, Attack attack)
+    public void SpawnEcho(Vector2 position, AnimationClip anim, Attack attack, bool lookingRight)
     {
         GameObject echo = Instantiate(echoPrefab, position, Quaternion.identity);
         EchoHandler handler = echo.GetComponent<EchoHandler>();
@@ -18,5 +18,6 @@ public class EchoSpawnHandler : MonoBehaviour
         handler.velocity = attack.attack.OverrideVel;
         handler.damage = attack.attack.damage / 2;
         handler.anim = anim;
+        handler.lookingRight = lookingRight;
     }
 }
