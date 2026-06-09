@@ -8,6 +8,7 @@ public class PlayerHitBox : MonoBehaviour
 
     private void Awake()
     {
+        DissableHitBox();
         hitBox = GetComponent<BoxCollider2D>();
     }
 
