@@ -46,6 +46,8 @@ public class EchoHandler : MonoBehaviour
         AnimatorOverrideController ov = new(animator.runtimeAnimatorController);
         ov["Attack"] = anim;
 
+        GetComponentInChildren<SpriteRenderer>().flipX = !lookingRight;
+
         animator.runtimeAnimatorController = ov;
         animator.Play("Attack");
     }
