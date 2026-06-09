@@ -19,13 +19,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float sideRayTop, sideRayWidth, sideRayLength;
     [SerializeField] LayerMask sideRayMask;
 
-    public float horizontal;
+    public static float horizontal;
 
-    public RaycastHit2D below, left, right;
+    public static RaycastHit2D below, left, right;
 
     public static event Action onJump;
 
-    bool b, l, r;
     int jumpCounter;
     Rigidbody2D rb;
 
@@ -47,11 +46,6 @@ public class PlayerController : MonoBehaviour
         right = CheckColl(sideRayLength, new Vector2(-sideRayWidth, sideRayBot), Vector2.right, sideRayMask);
 
         if (below) jumpCounter = maxJumps;
-
-        b = below.collider;
-        l = left.collider;
-        r = right.collider;
-
         Movement();
     }
 
