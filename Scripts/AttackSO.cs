@@ -8,6 +8,10 @@ public class AttackSO : ScriptableObject
     public List<Effects> effect;
     public Vector2 OverrideVel;
     public int damage = 10;
+
+    [Header("HitBox")]
+    public Vector2 position = new();
+    public Vector2 scale = new(1, 1);
 }
 
 [System.Serializable]
