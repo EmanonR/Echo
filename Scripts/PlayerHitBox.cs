@@ -4,7 +4,7 @@ public class PlayerHitBox : MonoBehaviour
 {
     public int damage;
 
-    public Collider2D hitBox;
+    public BoxCollider2D hitBox;
 
     private void Awake()
     {
