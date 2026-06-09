@@ -15,6 +15,15 @@ public class PlayerAttacker : MonoBehaviour
 
     public static bool attacking = false;
 
+    public static event Action<Vector2, AnimationClip, AttackSO> onAttack;
+
+    PlayerCollisionHandler colhandler;
+
+    private void Awake()
+    {
+        colhandler = GetComponent<PlayerCollisionHandler>();
+    }
+
     private void Update()
     {
         if (Input.GetKeyDown(attackKey))
@@ -48,12 +57,12 @@ public class PlayerAttacker : MonoBehaviour
         switch (req)
         {
             case ActivationReq.Grounded:
-                if (PlayerController.below)
+                if (colhandler.below)
                     return true;
                 break;
 
             case ActivationReq.AirBorn:
-                if (!PlayerController.below)
+                if (!colhandler.below)
                     return true;
                 break;
 
@@ -87,19 +96,19 @@ public class PlayerAttacker : MonoBehaviour
         switch (cancelCon)
         {
             case CancelationCon.Grounded:
-                if (PlayerController.below)
+                if (colhandler.below)
                     return true;
                 break;
 
             case CancelationCon.HitWall:
                 if (AnimatorController.lookingRight)
                 {
-                    if (PlayerController.right)
+                    if (colhandler.right)
                         return true;
                 }
                 else
                 {
-                    if (PlayerController.left)
+                    if (colhandler.left)
                         return true;
                 }
                 break;
@@ -160,6 +169,9 @@ public class PlayerAttacker : MonoBehaviour
             //Animation
             AnimatorController.animator.runtimeAnimatorController = currentAttack.animatorOV;
             AnimatorController.PlayAnimation("Attack");
+
+            //onAttack?.Invoke(transform.position, AnimatorController.animator.GetCurrentAnimatorClipInfo(0)[0].clip, currentAttack);
+            onAttack?.Invoke(transform.position, currentAttack.animatorOV["Attack"], currentAttack);
         }
     }
 
