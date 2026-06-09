@@ -24,17 +24,23 @@ public class PlayerController : MonoBehaviour
     public static RaycastHit2D below, left, right;
 
     public static event Action onJump;
+    public static bool moveOverride;
+    public static PlayerController Instance;
 
     int jumpCounter;
     Rigidbody2D rb;
 
     private void Awake()
     {
+        Instance = this;
+
         rb = GetComponent<Rigidbody2D>();
     }
 
     private void Update()
     {
+        if (moveOverride) return;
+
         if (jumpCounter > 0 && Input.GetKeyDown(KeyCode.Space))
             Jump();
     }
@@ -56,6 +62,8 @@ public class PlayerController : MonoBehaviour
 
     void Movement()
     {
+        if (moveOverride) return;
+
         if (below.collider == null) return;
         horizontal = Input.GetAxisRaw("Horizontal");
 
@@ -73,6 +81,15 @@ public class PlayerController : MonoBehaviour
         StartCoroutine(RemoveJump());
         onJump?.Invoke();
     }
+
+    public void OverrideVelocity(Vector2 newVel, bool right)
+    {
+        float xVel = right ? newVel.x : -newVel.x;
+
+        rb.linearVelocity = new Vector3(xVel, newVel.y);
+    }
+
+
 
     IEnumerator RemoveJump()
     {
