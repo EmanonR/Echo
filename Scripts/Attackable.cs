@@ -27,6 +27,7 @@ public class Attackable : MonoBehaviour
     public virtual void TakeDamage(int damage)
     {
         GameObject nbr = numbersPool[nbrInd];
+        nbr.transform.position = new Vector3(transform.position.x, transform.position.y + numberSpawnHeight);
         nbr.GetComponentInChildren<TMP_Text>().text = damage.ToString();
         nbr.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(Random.Range(-5, 5), Random.Range(5, 10));
         StartCoroutine(DespawnNumber(nbr));
