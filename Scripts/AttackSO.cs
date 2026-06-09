@@ -6,6 +6,7 @@ public class AttackSO : ScriptableObject
 {
     public AnimatorOverrideController animatorOV;
     public List<Effects> effect;
+    public Vector2 OverrideVel;
     public int damage = 10;
 }
 
