@@ -6,6 +6,7 @@ public class AnimatorController : MonoBehaviour
 
     Rigidbody2D rb;
     SpriteRenderer spriteRen;
+    PlayerCollisionHandler colhandler;
 
     public static string currentAnimName;
     string prevAnimName;
@@ -17,6 +18,7 @@ public class AnimatorController : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         rb = GetComponentInChildren<Rigidbody2D>();
         spriteRen = GetComponentInChildren<SpriteRenderer>();
+        colhandler = GetComponentInChildren<PlayerCollisionHandler>();
     }
 
     private void Update()
@@ -31,7 +33,7 @@ public class AnimatorController : MonoBehaviour
         if (PlayerAttacker.attacking) return;
 
 
-        if (PlayerController.below) //Grounded
+        if (colhandler.below) //Grounded
         {
             if (PlayerController.horizontal != 0)
                 PlayAnimation("Movement");
